@@ -1,5 +1,4 @@
 # Python_Brokers_API
-<<<<<<< HEAD
 This repository hosts the brain api used for my trading algorithms. 
 
 ## Example
@@ -33,6 +32,3 @@ print(
 )
 
 ```
-=======
-Python functions for crypto-brokers API
->>>>>>> d43b4ac55c4d565f385a62d941580b1c0928975f
