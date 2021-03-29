@@ -1,6 +1,5 @@
 r"""
-Module pour faire des implémentations dans des robots de trading pour automatiser et faciliter le passage
-d'ordre sur les brokers crypto
+Python functions for crypto-brokers API
 """
 
 __author__ = 'Hugo Demenez <hdemenez@hotmail.fr>'
@@ -10,20 +9,28 @@ from urllib.parse import urljoin, urlencode
 
 
 class binance():
-    '''Développement API pour automatisation d'echanges sur les marchés de binance'''
+    '''API development for trade automation in binance markets'''
     def __init__(self):
         self.API_SECRET=''
         self.API_KEY=''
 
+    def get_server_time(self):
+        '''Fonction pour obtenir l'heure du serveur '''
+        response = requests.get('https://api.binance.com/api/v3/time',params={}).json()
+        try:
+            return(response['serverTime'])
+        except:
+            return('unable to get server time')
+     
     def get_klines_data(self,symbol):
-        '''Fonction pour obtenir les informations des bougies d'interval 1minute [Open time,Open,High,Low,Close,Volume,Close time,
+        '''Function to get information from candles of 1minute interval [Open time,Open,High,Low,Close,Volume,Close time,
         Quote asset volume,Number of trades,Taker buy base asset volume,Taker buy quote asset volume,Ignore.]
         '''
         response = requests.get('https://api.binance.com/api/v3/klines',params={'symbol':symbol,'interval':'1m'}).json()
         return response
 
     def get_24h_stats(self,symbol):
-        '''Fonction pour obtenir les statsistiques des dernières 24h'''
+        '''Function to get statistics for the last 24h'''
         response = requests.get('https://api.binance.com/api/v3/ticker/24hr',params={'symbol':symbol}).json()
         try:
             stats={
@@ -41,7 +48,7 @@ class binance():
             return stats
         
     def connect_key(self,path):
-        '''Fonction pour connecter l'api au compte'''
+        '''Function to connect the api to the account'''
         try:
             with open(path, 'r') as f:
                 self.API_KEY = f.readline().strip()
@@ -51,7 +58,7 @@ class binance():
             return ("Unable to read .key file")
         
     def price(self,symbol):
-        '''Fonction pour obtenir les prix du symbol'''
+        '''Function to get symbol prices'''
         response = requests.get('https://api.binance.com/api/v3/ticker/bookTicker',params={'symbol':symbol}).json()
         try:
             bid=float(response['bidPrice'])
@@ -62,7 +69,7 @@ class binance():
         return price
 
     def account_information(self):
-        '''Fonction pour obtenir les informations du compte'''
+        '''Function to get account information'''
         timestamp = self.get_server_time()
         recvWindow=10000
         params = {
@@ -76,8 +83,36 @@ class binance():
         response = requests.get(url, headers=headers, params=params).json()
         return response
 
+    def get_balances(self):
+        '''Fonction pour récuperer les soldes des portefeuilles'''
+        try:
+            balances=self.account_information()['balances']
+        except:
+            balances={'error':'unable to get balances'}
+        return balances
+
+    def get_open_orders(self):
+        '''Fonction pour récuperer les ordres ouverts'''
+        timestamp = self.get_server_time()
+        params = {
+            'timestamp': timestamp,
+        }
+        query_string = urlencode(params)
+        params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+        headers = {'X-MBX-APIKEY': self.API_KEY}
+        url = urljoin('https://api.binance.com','/api/v3/openOrderList')
+        response = requests.get(url, headers=headers, params=params).json()
+        try:
+            code = response['code']
+            return ('Unable to get orders')
+        except:
+            if response==[]:
+                return {}
+        finally:
+            return response
+
     def create_limit_order(self,symbol,side,price,quantity):
-        '''Fonction pour créer un ordre limite'''
+        '''Function to create a limit order'''
         timestamp = int(time.time() * 1000)
         recvWindow=10000
         params = {
@@ -158,49 +193,23 @@ class binance():
         response = requests.post(url, headers=headers, params=params).text
         return response
 
-    def get_balances(self):
-        '''Fonction pour récuperer les soldes des portefeuilles'''
-        try:
-            balances=self.account_information()['balances']
-        except:
-            balances={'error':'unable to get balances'}
-        return balances
-
-    def get_open_orders(self):
-        '''Fonction pour récuperer les ordres ouverts'''
-        timestamp = self.get_server_time()
-        params = {
-            'timestamp': timestamp,
-        }
-        query_string = urlencode(params)
-        params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
-        headers = {'X-MBX-APIKEY': self.API_KEY}
-        url = urljoin('https://api.binance.com','/api/v3/openOrderList')
-        response = requests.get(url, headers=headers, params=params).json()
-        try:
-            code = response['code']
-            return ('Unable to get orders')
-        except:
-            if response==[]:
-                return {}
-        finally:
-            return response
          
-    def get_server_time(self):
-        '''Fonction pour obtenir l'heure du serveur '''
-        response = requests.get('https://api.binance.com/api/v3/time',params={}).json()
-        try:
-            return(response['serverTime'])
-        except:
-            return('unable to get server time')
-        
+   
 class kraken():
-    '''Développement API pour automatisation d'echanges sur les marchés de kraken avec krakenex'''
+    '''API development for trading automation in kraken markets with krakenex'''
     def __init__(self):
         self.api=krakenex.API()
  
+    def get_server_time(self):
+        '''Fonction pour obtenir l'heure du serveur '''
+        response = requests.get('https://api.kraken.com/0/public/Time',params={}).json()
+        try:
+            return(response['result']['unixtime'])
+        except:
+            return('unable to get server time')
+
     def get_24h_stats(self,symbol):
-        '''Fonction pour obtenir les statistiques des dernières 24h'''
+        '''Function to get statistics for the last 24h'''
         response = requests.get('https://api.kraken.com/0/public/Ticker',params={'pair':symbol}).json()
         
         try:
@@ -220,18 +229,18 @@ class kraken():
             return stats
 
     def get_klines_data(self,symbol):
-        '''Fonction pour obtenir les informations des bougies d'interval 1minute
+        '''Function to get information from candles of 1minute interval
         <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
         '''
         response = requests.get('https://api.kraken.com/0/public/OHLC',params={'pair':symbol,'interval':'1'}).json()
         return response
 
     def connect_key(self,path):
-        '''Fonction pour connecter l'api au compte'''
+        '''Function to connect the api to the account'''
         self.api.load_key(path=path)
 
     def price(self,symbol):
-        '''Fonction pour obtenir les prix du symbol'''
+        '''Function to get symbol prices'''
         response = requests.get('https://api.kraken.com/0/public/Ticker',params={'pair':symbol}).json()
         
         try:
@@ -244,7 +253,7 @@ class kraken():
         return price
 
     def account_information(self):
-        '''Fonction pour obtenir les informations du compte'''
+        '''Function to get account information'''
         try:
             informations = self.api.query_private(method="Balance")['result']
         except:
@@ -316,7 +325,7 @@ class kraken():
         return ordre
 
     def create_limit_order(self,symbol,side,price,quantity):
-        '''Fonction pour créer un ordre limite'''
+        '''Function to create a limit order'''
         data={
             'pair':symbol,
             'ordertype':'limit',
@@ -331,14 +340,6 @@ class kraken():
             return ('unable to join market')
         return ordre
 
-    def get_server_time(self):
-        '''Fonction pour obtenir l'heure du serveur '''
-        response = requests.get('https://api.kraken.com/0/public/Time',params={}).json()
-        try:
-            return(response['result']['unixtime'])
-        except:
-            return('unable to get server time')
-        
 
 if __name__=='__main__':
     pass
