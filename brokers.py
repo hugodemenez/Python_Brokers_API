@@ -15,7 +15,7 @@ class binance():
         self.API_KEY=''
 
     def get_server_time(self):
-        '''Fonction pour obtenir l'heure du serveur '''
+        '''Function to get server time'''
         response = requests.get('https://api.binance.com/api/v3/time',params={}).json()
         try:
             return(response['serverTime'])
@@ -84,7 +84,7 @@ class binance():
         return response
 
     def get_balances(self):
-        '''Fonction pour récuperer les soldes des portefeuilles'''
+        '''Function to get account balances'''
         try:
             balances=self.account_information()['balances']
         except:
@@ -92,7 +92,7 @@ class binance():
         return balances
 
     def get_open_orders(self):
-        '''Fonction pour récuperer les ordres ouverts'''
+        '''Function to get open orders'''
         timestamp = self.get_server_time()
         params = {
             'timestamp': timestamp,
@@ -133,7 +133,7 @@ class binance():
         return response
 
     def create_market_order(self,symbol,side,quantity):
-        '''Fonction pour créer un ordre au marché'''
+        '''Function to create market order'''
         timestamp = int(time.time() * 1000)
         recvWindow=10000
         params = {
@@ -152,7 +152,7 @@ class binance():
         return response
 
     def create_stop_loss_order(self,symbol,quantity,stopPrice,side):
-        '''Fonction pour créer un stop loss'''
+        '''Function to create a stop loss'''
         timestamp = int(time.time() * 1000)
         recvWindow=10000
         params = {
@@ -173,7 +173,7 @@ class binance():
         return response
 
     def create_take_profit_order(self,symbol,quantity,profitPrice,side):
-        '''Fonction pour créer un takeprofit'''
+        '''Function to create a takeprofit'''
         timestamp = int(time.time() * 1000)
         recvWindow=10000
         params = {
@@ -201,7 +201,7 @@ class kraken():
         self.api=krakenex.API()
  
     def get_server_time(self):
-        '''Fonction pour obtenir l'heure du serveur '''
+        '''Function to get server time'''
         response = requests.get('https://api.kraken.com/0/public/Time',params={}).json()
         try:
             return(response['result']['unixtime'])
@@ -261,7 +261,7 @@ class kraken():
         return informations
 
     def get_balances(self):
-        '''Fonction pour récuperer les soldes des portefeuilles'''
+        '''Function to get account balances'''
         try:
             balances = self.api.query_private(method="Balance")['result']
         except:
@@ -269,60 +269,13 @@ class kraken():
         return balances
 
     def get_open_orders(self):
-        '''Fonction pour récuperer les ordres ouverts'''
+        '''Function to get open orders'''
         try:
             open_orders= self.api.query_private(method='OpenOrders')
             open_orders=open_orders['result']['open']
         except:
             return ('unable to get open orders')
         return open_orders
-
-    def create_stop_loss_order(self,symbol,quantity,stopPrice,side):
-        '''Fonction pour créer un stop loss'''
-        data={
-            'pair':symbol,
-            'ordertype':'stop-loss',
-            'type':side,
-            'volume':quantity,
-            'price':stopPrice,
-        }
-        #On essaie de transmettre l'ordre au marché
-        try :
-            ordre = self.api.query_private(method='AddOrder',data=data)
-        except:
-            return ('unable to join market')
-        return ordre
-
-    def create_market_order(self,symbol,side,quantity):
-        '''Fonction pour créer un ordre au marché'''
-        data={
-            'pair':symbol,
-            'ordertype':'market',
-            'type':side,
-            'volume':quantity,
-        }
-        #On essaie de transmettre l'ordre au marché
-        try :
-            ordre = self.api.query_private(method='AddOrder',data=data)
-        except:
-            return ('unable to join market')
-        return ordre
-
-    def create_take_profit_order(self,symbol,quantity,profitPrice,side):
-        '''Fonction pour créer un takeprofit'''
-        data={
-            'pair':symbol,
-            'ordertype':'take-profit',
-            'type':side,
-            'volume':quantity,
-            'price':profitPrice,
-        }
-        #On essaie de transmettre l'ordre au marché
-        try :
-            ordre = self.api.query_private(method='AddOrder',data=data)
-        except:
-            return ('unable to join market')
-        return ordre
 
     def create_limit_order(self,symbol,side,price,quantity):
         '''Function to create a limit order'''
@@ -339,6 +292,54 @@ class kraken():
         except:
             return ('unable to join market')
         return ordre
+
+    def create_market_order(self,symbol,side,quantity):
+        '''Function to create market order'''
+        data={
+            'pair':symbol,
+            'ordertype':'market',
+            'type':side,
+            'volume':quantity,
+        }
+        #On essaie de transmettre l'ordre au marché
+        try :
+            ordre = self.api.query_private(method='AddOrder',data=data)
+        except:
+            return ('unable to join market')
+        return ordre
+
+    def create_stop_loss_order(self,symbol,quantity,stopPrice,side):
+        '''Function to create a stop loss'''
+        data={
+            'pair':symbol,
+            'ordertype':'stop-loss',
+            'type':side,
+            'volume':quantity,
+            'price':stopPrice,
+        }
+        #On essaie de transmettre l'ordre au marché
+        try :
+            ordre = self.api.query_private(method='AddOrder',data=data)
+        except:
+            return ('unable to join market')
+        return ordre
+
+    def create_take_profit_order(self,symbol,quantity,profitPrice,side):
+        '''Function to create a takeprofit'''
+        data={
+            'pair':symbol,
+            'ordertype':'take-profit',
+            'type':side,
+            'volume':quantity,
+            'price':profitPrice,
+        }
+        #On essaie de transmettre l'ordre au marché
+        try :
+            ordre = self.api.query_private(method='AddOrder',data=data)
+        except:
+            return ('unable to join market')
+        return ordre
+
 
 
 if __name__=='__main__':
