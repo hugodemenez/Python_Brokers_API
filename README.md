@@ -1,5 +1,26 @@
-# Python_Brokers_API
-This repository hosts the brain api used for my trading algorithms. 
+<h1 align="center">Python_Brokers_API</h1>
+<p align="center">This repository hosts the brain api used for my trading algorithms.</p> 
+
+<div align="center">
+  <strong>Simple functions to use crypto brokers with python 3 </strong>
+</div>
+
+<br />
+
+<div align="center">
+  <!-- license -->
+  <a href="https://tldrlegal.com/license/mit-license">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg"
+      alt="license" />
+  </a>
+</div>
+
+<br />
+
+<div align="center">
+  <sub>Built by
+  <a href="https://github.com/hugodemenez">Hugo Demenez</a>
+</div>
 
 ## Example
 ```python3
