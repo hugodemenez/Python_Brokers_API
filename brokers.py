@@ -228,12 +228,38 @@ class kraken():
         finally:
             return stats
 
-    def get_klines_data(self,symbol):
+    def get_klines_data(self,symbol,interval):
         '''Function to get information from candles of 1minute interval
         <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
         '''
+        if interval=='day':
+            interval='1440'
+        if interval=='hour':
+            interval='60'
+        if interval=='minute':
+            interval='1'
         response = requests.get('https://api.kraken.com/0/public/OHLC',params={'pair':symbol,'interval':'1'}).json()
-        return response
+        try :
+            for pair in response['result']:
+                if pair=='last':
+                    pair=pair1
+                pair1=pair
+            reponse = response['result'][pair]
+            formated_response=[]
+            for info in reponse:
+                data={}
+                data['time']=info[0]
+                data['open']=info[1]
+                data['high']=info[2]
+                data['low']=info[3]
+                data['close']=info[4]
+                data['vwap']=info[5]
+                data['volume']=info[6]
+                data['count']=info[7]
+                formated_response.append(data)
+        except:
+            formated_response = response['error']
+        return formated_response
 
     def connect_key(self,path):
         '''Function to connect the api to the account'''
