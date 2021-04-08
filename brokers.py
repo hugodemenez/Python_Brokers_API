@@ -228,17 +228,25 @@ class kraken():
         finally:
             return stats
 
-    def get_klines_data(self,symbol,interval):
+    def get_klines_data(self,symbol,interval,timeframe):
         '''Function to get information from candles of 1minute interval
         <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
+        since (1hour for minutes or 1week for days)
+        max timeframe is 12hours for minute interval 
+        max timeframe is 100 weeks for day interval
         '''
         if interval=='day':
             interval='1440'
-        if interval=='hour':
+            since_time=604800*timeframe
+        elif interval=='hour':
             interval='60'
-        if interval=='minute':
+            since_time=86400*timeframe
+        elif interval=='minute':
             interval='1'
-        response = requests.get('https://api.kraken.com/0/public/OHLC',params={'pair':symbol,'interval':'1'}).json()
+            since_time=3600*timeframe
+        else:
+            return ('wrong interval')
+        response = requests.get('https://api.kraken.com/0/public/OHLC',params={'pair':symbol,'interval':interval,'since':str(time.time()-since_time)}).json()
         try :
             for pair in response['result']:
                 if pair=='last':
