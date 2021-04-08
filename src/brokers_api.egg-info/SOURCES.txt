@@ -1,9 +1,0 @@
-README.md
-pyproject.toml
-setup.cfg
-src/brokers/__init__.py
-src/brokers/brokers.py
-src/brokers_api.egg-info/PKG-INFO
-src/brokers_api.egg-info/SOURCES.txt
-src/brokers_api.egg-info/dependency_links.txt
-src/brokers_api.egg-info/top_level.txt
