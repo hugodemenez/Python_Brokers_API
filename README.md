@@ -25,9 +25,9 @@
 ## Example
 ```python3
 
-import brokers
+import Python_Brokers_API
 
-broker=brokers.binance()
+broker=Python_Brokers_API.binance()
 
 #Public data
 print(

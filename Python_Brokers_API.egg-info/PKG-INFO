@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: Python-Brokers-API
-Version: 0.4
+Version: 0.8
 Summary: A package to make requests to brokers like binance,kraken
 Home-page: https://github.com/hugodemenez/Python_Brokers_API
 Author: Hugo Demenez
 Author-email: hdemenez@hotmail.fr
 License: MIT
-Download-URL: https://github.com/hugodemenez/Python_Brokers_API/archive/refs/tags/v0.4.tar.gz
+Download-URL: https://github.com/hugodemenez/Python_Brokers_API/archive/refs/tags/v0.8.tar.gz
 Description: <h1 align="center">Python_Brokers_API</h1>
         <p align="center">This repository hosts the brain api used for my trading algorithms.</p> 
         
@@ -34,9 +34,9 @@ Description: <h1 align="center">Python_Brokers_API</h1>
         ## Example
         ```python3
         
-        import brokers
+        import Python_Brokers_API
         
-        broker=brokers.binance()
+        broker=Python_Brokers_API.binance()
         
         #Public data
         print(
