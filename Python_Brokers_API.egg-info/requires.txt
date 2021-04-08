@@ -1,0 +1,7 @@
+time
+json
+hmac
+hashlib
+requests
+krakenex
+urllib
