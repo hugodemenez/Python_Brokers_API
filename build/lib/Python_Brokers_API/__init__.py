@@ -42,7 +42,7 @@ class binance():
        
     def get_klines_data(self,symbol,interval):
         """Function to get information from candles of 1minute interval
-        <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
+        <time>, <open>, <high>, <low>, <close>, <volume>
         since (1hour for minutes or 1week for days)
         max timeframe is 12hours for minute interval 
         max timeframe is 30 days for hour interval
@@ -62,7 +62,7 @@ class binance():
             formated_response=[]
             for info in response:
                 data={}
-                data['time']=info[0]
+                data['time']=int(round(info[0]/1000,0))
                 data['open']=info[1]
                 data['high']=info[2]
                 data['low']=info[3]
@@ -71,7 +71,7 @@ class binance():
 
                 formated_response.append(data)
         except:
-            formated_response = response
+            formated_response = 'error'
         return formated_response
 
  
@@ -258,7 +258,7 @@ class kraken():
 
     def get_klines_data(self,symbol,interval):
         '''Function to get information from candles of 1minute interval
-        <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
+        <time>, <open>, <high>, <low>, <close>,<volume>
         since (1hour for minutes or 1week for days)
         max timeframe is 12hours for minute interval 
         max timeframe is 30 days for hour interval
