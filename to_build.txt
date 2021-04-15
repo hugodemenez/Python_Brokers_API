@@ -1,0 +1,6 @@
+create a release on github repository
+update the version in setup.py
+
+py -m build
+
+py -m twine upload dist/*
