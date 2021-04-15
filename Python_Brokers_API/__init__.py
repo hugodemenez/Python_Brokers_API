@@ -22,6 +22,24 @@ class binance():
         except:
             return('unable to get server time')
      
+    def get_24h_stats(self,symbol):
+        '''Function to get statistics for the last 24h'''
+        response = requests.get('https://api.binance.com/api/v3/ticker/24hr',params={'symbol':symbol}).json()
+        try:
+            stats={
+                'volume':response['volume'],
+                'open':response['openPrice'],
+                'high':response['highPrice'],
+                'low':response['lowPrice'],
+                'last':response['lastPrice'],
+            }
+        except:
+            stats={
+                'error':response,
+            }
+        finally:
+            return stats
+       
     def get_klines_data(self,symbol,interval):
         """Function to get information from candles of 1minute interval
         <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
@@ -55,24 +73,8 @@ class binance():
         except:
             formated_response = response
         return formated_response
-    def get_24h_stats(self,symbol):
-        '''Function to get statistics for the last 24h'''
-        response = requests.get('https://api.binance.com/api/v3/ticker/24hr',params={'symbol':symbol}).json()
-        try:
-            stats={
-                'volume':response['volume'],
-                'open':response['openPrice'],
-                'high':response['highPrice'],
-                'low':response['lowPrice'],
-                'last':response['lastPrice'],
-            }
-        except:
-            stats={
-                'error':response,
-            }
-        finally:
-            return stats
-        
+
+ 
     def connect_key(self,path):
         '''Function to connect the api to the account'''
         try:
