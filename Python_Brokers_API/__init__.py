@@ -22,13 +22,39 @@ class binance():
         except:
             return('unable to get server time')
      
-    def get_klines_data(self,symbol):
-        '''Function to get information from candles of 1minute interval [Open time,Open,High,Low,Close,Volume,Close time,
-        Quote asset volume,Number of trades,Taker buy base asset volume,Taker buy quote asset volume,Ignore.]
-        '''
-        response = requests.get('https://api.binance.com/api/v3/klines',params={'symbol':symbol,'interval':'1m'}).json()
-        return response
+    def get_klines_data(self,symbol,interval):
+        """Function to get information from candles of 1minute interval
+        <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
+        since (1hour for minutes or 1week for days)
+        max timeframe is 12hours for minute interval 
+        max timeframe is 30 days for hour interval
+        max timeframe is 100 weeks for day interval
+        """
+        if interval=='day':
+            interval='1d'
+        elif interval=='hour':
+            interval='1h'
+        elif interval=='minute':
+            interval='1m'
+        else:
+            return ('wrong interval')
 
+        response = requests.get('https://api.binance.com/api/v3/klines',params={'symbol':symbol,'interval':interval,'limit':720}).json()
+        try :
+            formated_response=[]
+            for info in response:
+                data={}
+                data['time']=info[0]
+                data['open']=info[1]
+                data['high']=info[2]
+                data['low']=info[3]
+                data['close']=info[4]
+                data['volume']=info[5]
+
+                formated_response.append(data)
+        except:
+            formated_response = response
+        return formated_response
     def get_24h_stats(self,symbol):
         '''Function to get statistics for the last 24h'''
         response = requests.get('https://api.binance.com/api/v3/ticker/24hr',params={'symbol':symbol}).json()
@@ -228,25 +254,26 @@ class kraken():
         finally:
             return stats
 
-    def get_klines_data(self,symbol,interval,timeframe):
+    def get_klines_data(self,symbol,interval):
         '''Function to get information from candles of 1minute interval
         <time>, <open>, <high>, <low>, <close>, <vwap>, <volume>, <count>
         since (1hour for minutes or 1week for days)
         max timeframe is 12hours for minute interval 
+        max timeframe is 30 days for hour interval
         max timeframe is 100 weeks for day interval
         '''
         if interval=='day':
             interval='1440'
-            since_time=604800*timeframe
+
         elif interval=='hour':
             interval='60'
-            since_time=86400*timeframe
+
         elif interval=='minute':
             interval='1'
-            since_time=3600*timeframe
+
         else:
             return ('wrong interval')
-        response = requests.get('https://api.kraken.com/0/public/OHLC',params={'pair':symbol,'interval':interval,'since':str(time.time()-since_time)}).json()
+        response = requests.get('https://api.kraken.com/0/public/OHLC',params={'pair':symbol,'interval':interval}).json()
         try :
             for pair in response['result']:
                 if pair=='last':
@@ -261,9 +288,7 @@ class kraken():
                 data['high']=info[2]
                 data['low']=info[3]
                 data['close']=info[4]
-                data['vwap']=info[5]
                 data['volume']=info[6]
-                data['count']=info[7]
                 formated_response.append(data)
         except:
             formated_response = response['error']

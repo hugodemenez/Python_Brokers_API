@@ -2,7 +2,7 @@ import __init__ as broker
 
 
 
-print(broker.binance().price('ETHEUR'))
+print(broker.binance().get_klines_data(symbol='BTCEUR',interval='minute'))
 
 
 
