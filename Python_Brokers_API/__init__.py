@@ -63,11 +63,11 @@ class binance():
             for info in response:
                 data={}
                 data['time']=int(round(info[0]/1000,0))
-                data['open']=info[1]
-                data['high']=info[2]
-                data['low']=info[3]
-                data['close']=info[4]
-                data['volume']=info[5]
+                data['open']=float(info[1])
+                data['high']=float(info[2])
+                data['low']=float(info[3])
+                data['close']=float(info[4])
+                data['volume']=float(info[5])
 
                 formated_response.append(data)
         except:
@@ -286,11 +286,11 @@ class kraken():
             for info in reponse:
                 data={}
                 data['time']=info[0]
-                data['open']=info[1]
-                data['high']=info[2]
-                data['low']=info[3]
-                data['close']=info[4]
-                data['volume']=info[6]
+                data['open']=float(info[1])
+                data['high']=float(info[2])
+                data['low']=float(info[3])
+                data['close']=float(info[4])
+                data['volume']=float(info[6])
                 formated_response.append(data)
         except:
             formated_response = response['error']
