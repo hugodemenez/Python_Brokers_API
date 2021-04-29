@@ -241,7 +241,25 @@ class binance():
         url = urljoin('https://api.binance.com','/api/v3/order')
         response = requests.post(url, headers=headers, params=params).text
         return response
-         
+        
+    def test_order(self):
+        '''Function to create market order'''
+        timestamp = int(time.time() * 1000)
+        recvWindow=10000
+        params = {
+            'symbol':'BTCEUR',
+            'side':'buy',
+            'type':'MARKET',
+            'quantity':1,
+            'timestamp': timestamp,
+            'recvWindow':recvWindow,
+        }
+        query_string = urlencode(params)
+        params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+        headers = {'X-MBX-APIKEY': self.API_KEY}
+        url = urljoin('https://api.binance.com','/api/v3/order/test')
+        response = requests.post(url, headers=headers, params=params).text
+        return response
    
 class kraken():
     
