@@ -132,7 +132,7 @@ class binance():
         query_string = urlencode(params)
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
-        url = urljoin('https://api.binance.com','/api/v3/openOrderList')
+        url = urljoin('https://api.binance.com','/api/v3/openOrders')
         response = requests.get(url, headers=headers, params=params).json()
         try:
             code = response['code']
