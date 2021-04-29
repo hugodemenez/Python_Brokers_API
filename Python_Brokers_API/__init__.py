@@ -22,7 +22,7 @@ class binance():
         '''Function to get server time'''
         response = requests.get('https://api.binance.com/api/v3/time',params={}).json()
         try:
-            return(int(round(response['serverTime']/1000,0)))
+            return response['serverTime']
         except:
             return('unable to get server time')
      
