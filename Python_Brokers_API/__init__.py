@@ -161,7 +161,7 @@ class binance():
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order')
-        response = requests.post(url, headers=headers, params=params).text
+        response = requests.post(url, headers=headers, params=params).json()
         return response
 
     def create_market_order(self,symbol,side,quantity):
@@ -180,7 +180,7 @@ class binance():
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order')
-        response = requests.post(url, headers=headers, params=params).text
+        response = requests.post(url, headers=headers, params=params).json()
         return response
 
     def create_stop_loss_order(self,symbol,quantity,stopPrice,side):
@@ -201,7 +201,7 @@ class binance():
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order')
-        response = requests.post(url, headers=headers, params=params).text
+        response = requests.post(url, headers=headers, params=params).json()
         return response
 
     def create_take_profit_order(self,symbol,quantity,profitPrice,side):
@@ -222,7 +222,7 @@ class binance():
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order')
-        response = requests.post(url, headers=headers, params=params).text
+        response = requests.post(url, headers=headers, params=params).json()
         return response
 
     def query_order(self,symbol,orderid):
@@ -239,7 +239,7 @@ class binance():
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order')
-        response = requests.post(url, headers=headers, params=params).text
+        response = requests.post(url, headers=headers, params=params).json()
         return response
         
     def test_order(self):
@@ -258,7 +258,7 @@ class binance():
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order/test')
-        response = requests.post(url, headers=headers, params=params).text
+        response = requests.post(url, headers=headers, params=params).json()
         return response
    
 class kraken():
