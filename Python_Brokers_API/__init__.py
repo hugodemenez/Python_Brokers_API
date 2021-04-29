@@ -14,7 +14,7 @@ class binance():
         self.API_SECRET=''
         self.API_KEY=''
 
-    def truncate(number, digits) -> float:
+    def truncate(self,number, digits) -> float:
         stepper = 10.0 ** digits
         return math.trunc(stepper * number) / stepper
 
@@ -233,7 +233,7 @@ class kraken():
     def __init__(self):
         self.api=krakenex.API()
  
-    def truncate(number, digits) -> float:
+    def truncate(self,number, digits) -> float:
             stepper = 10.0 ** digits
             return math.trunc(stepper * number) / stepper
         
