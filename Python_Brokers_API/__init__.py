@@ -4,7 +4,7 @@ Python functions for crypto-brokers API
 
 __author__ = 'Hugo Demenez <hdemenez@hotmail.fr>'
 
-import time,json,hmac,hashlib,requests,krakenex
+import time,json,hmac,hashlib,requests,krakenex,math
 from urllib.parse import urljoin, urlencode
 
 
@@ -13,6 +13,10 @@ class binance():
     def __init__(self):
         self.API_SECRET=''
         self.API_KEY=''
+
+    def truncate(number, digits) -> float:
+        stepper = 10.0 ** digits
+        return math.trunc(stepper * number) / stepper
 
     def get_server_time(self):
         '''Function to get server time'''
@@ -148,7 +152,7 @@ class binance():
             'side':side,
             'type':'LIMIT',
             'timeInForce':'GTC',
-            'quantity':round(quantity,6),
+            'quantity':self.truncate(quantity,6),
             'price':price,
             'timestamp': timestamp,
             'recvWindow':recvWindow,
@@ -168,7 +172,7 @@ class binance():
             'symbol':symbol,
             'side':side,
             'type':'MARKET',
-            'quantity':round(quantity,6),
+            'quantity':self.truncate(quantity,6),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
@@ -188,7 +192,7 @@ class binance():
             'side':side,
             'type':'STOP_LOSS',
             'timeInForce':'GTC',
-            'quantity':round(quantity,6),
+            'quantity':self.truncate(quantity,6),
             'price':stopPrice,
             'timestamp': timestamp,
             'recvWindow':recvWindow,
@@ -209,7 +213,7 @@ class binance():
             'side':side,
             'type':'TAKE_PROFIT',
             'timeInForce':'GTC',
-            'quantity':round(quantity,6),
+            'quantity':self.truncate(quantity,6),
             'price':profitPrice,
             'timestamp': timestamp,
             'recvWindow':recvWindow,
@@ -224,10 +228,15 @@ class binance():
          
    
 class kraken():
+    
     '''API development for trading automation in kraken markets with krakenex'''
     def __init__(self):
         self.api=krakenex.API()
  
+    def truncate(number, digits) -> float:
+            stepper = 10.0 ** digits
+            return math.trunc(stepper * number) / stepper
+        
     def get_server_time(self):
         '''Function to get server time'''
         response = requests.get('https://api.kraken.com/0/public/Time',params={}).json()
