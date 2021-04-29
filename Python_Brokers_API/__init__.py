@@ -153,7 +153,7 @@ class binance():
             'type':'LIMIT',
             'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
-            'price':price,
+            'price':self.truncate(price,8),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
@@ -193,7 +193,7 @@ class binance():
             'type':'STOP_LOSS',
             'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
-            'price':stopPrice,
+            'price':self.truncate(stopPrice,8),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
@@ -214,7 +214,7 @@ class binance():
             'type':'TAKE_PROFIT',
             'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
-            'price':profitPrice,
+            'price':self.truncate(profitPrice,8),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
