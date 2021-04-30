@@ -259,7 +259,11 @@ class binance():
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order/test')
         response = requests.post(url, headers=headers, params=params).json()
-        return response
+        try:
+            response['msg']
+            return False
+        except:
+            return True
    
 class kraken():
     
@@ -444,6 +448,26 @@ class kraken():
             return ('unable to join market')
         return ordre
 
+    def test_order(self):
+        '''Function to create test order'''
+        data={
+            'pair':'BTCEUR',
+            'ordertype':'market',
+            'type':'buy',
+            'volume':1,
+            'validate':1,
+        }
+        #On essaie de transmettre l'ordre au marché
+        try :
+            ordre = self.api.query_private(method='AddOrder',data=data)
+            if ordre["error"]==[]:
+                return True
+            else:
+                return False
+        except:
+            return False
+        
+
 
 
 if __name__=='__main__':
@@ -451,9 +475,9 @@ if __name__=='__main__':
 
     #Public data
     print(
-        broker.price(),
-        broker.get_klines_data(),
-        broker.get_24h_stats(),
+        broker.price(symbol="BTCEUR"),
+        broker.get_klines_data(symbol="BTCEUR",interval="minute"),
+        broker.get_24h_stats("BTCEUR"),
         )
 
     #To connect api
@@ -461,6 +485,11 @@ if __name__=='__main__':
         broker.connect_key("binance.key")
     )
 
+    #To check the CONNECTION True = Ok, False = Error
+    print(
+        broker.test_order()
+    )
+    exit()
     #Private data
     print(
         broker.account_information(),
