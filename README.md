@@ -36,6 +36,11 @@ print(
     broker.get_24h_stats("BTCEUR"),
     )
 
+#To create .key file
+print(
+  broker.create_key_file()
+)
+
 #To connect api
 print(
     broker.connect_key("binance.key")
