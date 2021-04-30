@@ -31,14 +31,19 @@ broker=Python_Brokers_API.binance()
 
 #Public data
 print(
-    broker.price(),
-    broker.get_klines_data(),
-    broker.get_24h_stats(),
+    broker.price(symbol="BTCEUR"),
+    broker.get_klines_data(symbol="BTCEUR",interval="minute"),
+    broker.get_24h_stats("BTCEUR"),
     )
 
 #To connect api
 print(
     broker.connect_key("binance.key")
+)
+
+#To check the connection True = Ok, False = Error
+print(
+    broker.test_order()
 )
 
 #Private data
