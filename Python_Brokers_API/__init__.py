@@ -18,6 +18,14 @@ class binance():
         stepper = 10.0 ** digits
         return math.trunc(stepper * number) / stepper
 
+    def create_key_file(self): 
+            API_KEY = str(input("Enter your API key :"))
+            SECRET_KEY = str(input("Enter your SECRET_KEY :"))
+            file = open("binance.key","w")
+            file.write(API_KEY+'\n')
+            file.write(SECRET_KEY)
+            file.close()
+
     def get_server_time(self):
         '''Function to get server time'''
         response = requests.get('https://api.binance.com/api/v3/time',params={}).json()
@@ -274,7 +282,15 @@ class kraken():
     def truncate(self,number, digits) -> float:
             stepper = 10.0 ** digits
             return math.trunc(stepper * number) / stepper
-        
+
+    def create_key_file(self): 
+        API_KEY = str(input("Enter your API key :"))
+        SECRET_KEY = str(input("Enter your SECRET_KEY :"))
+        file = open("kraken.key","w")
+        file.write(API_KEY+'\n')
+        file.write(SECRET_KEY)
+        file.close()
+
     def get_server_time(self):
         '''Function to get server time'''
         response = requests.get('https://api.kraken.com/0/public/Time',params={}).json()
