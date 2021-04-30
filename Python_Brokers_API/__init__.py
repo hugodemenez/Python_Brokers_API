@@ -19,12 +19,13 @@ class binance():
         return math.trunc(stepper * number) / stepper
 
     def create_key_file(self): 
-            API_KEY = str(input("Enter your API key :"))
-            SECRET_KEY = str(input("Enter your SECRET_KEY :"))
-            file = open("binance.key","w")
-            file.write(API_KEY+'\n')
-            file.write(SECRET_KEY)
-            file.close()
+        """Function to create your .key file"""
+        API_KEY = str(input("Enter your API key :"))
+        SECRET_KEY = str(input("Enter your SECRET_KEY :"))
+        file = open("binance.key","w")
+        file.write(API_KEY+'\n')
+        file.write(SECRET_KEY)
+        file.close()
 
     def get_server_time(self):
         '''Function to get server time'''
@@ -284,6 +285,7 @@ class kraken():
             return math.trunc(stepper * number) / stepper
 
     def create_key_file(self): 
+        """Function to create your .key file"""
         API_KEY = str(input("Enter your API key :"))
         SECRET_KEY = str(input("Enter your SECRET_KEY :"))
         file = open("kraken.key","w")
