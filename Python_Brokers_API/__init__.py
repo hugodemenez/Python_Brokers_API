@@ -489,7 +489,7 @@ if __name__=='__main__':
     print(
         broker.test_order()
     )
-    exit()
+
     #Private data
     print(
         broker.account_information(),
