@@ -471,32 +471,4 @@ class kraken():
 
 
 if __name__=='__main__':
-    broker=Python_Brokers_API.binance()
-
-    #Public data
-    print(
-        broker.price(symbol="BTCEUR"),
-        broker.get_klines_data(symbol="BTCEUR",interval="minute"),
-        broker.get_24h_stats("BTCEUR"),
-        )
-
-    #To connect api
-    print(
-        broker.connect_key("binance.key")
-    )
-
-    #To check the CONNECTION True = Ok, False = Error
-    print(
-        broker.test_order()
-    )
-
-    #Private data
-    print(
-        broker.account_information(),
-        broker.get_open_orders(),
-        broker.get_balances(),
-        broker.create_market_order(symbol='BTCUSD',side='buy',quantity=1),
-        broker.create_limit_order(symbol='BTCUSD',side='buy',quantity=1,price=10000),
-        broker.create_take_profit_order(symbol='BTCUSD',side='buy',quantity=1,profitPrice=100000),
-        broker.create_stop_loss_order(symbol='BTCUSD',side='buy',quantity=1,stopPrice=1000),
-    )
+    pass
