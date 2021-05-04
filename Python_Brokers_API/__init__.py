@@ -124,13 +124,15 @@ class binance():
         response = requests.get(url, headers=headers, params=params).json()
         return response
 
-    def get_balances(self):
+    def get_balances(self,asset):
         '''Function to get account balances'''
         try:
             balances=self.account_information()['balances']
+            for balance in balances:
+                if balance['asset']==asset:
+                    return balance
         except:
-            balances={'error':'unable to get balances'}
-        return balances
+            return {'error':'unable to get balances'}
 
     def get_open_orders(self):
         '''Function to get open orders'''
@@ -154,7 +156,7 @@ class binance():
 
     def create_limit_order(self,symbol,side,price,quantity):
         '''Function to create a limit order'''
-        timestamp = int(time.time() * 1000)
+        timestamp = self.get_server_time()
         recvWindow=10000
         params = {
             'symbol':symbol,
@@ -174,17 +176,29 @@ class binance():
         return response
 
     def create_market_order(self,symbol,side,quantity):
-        '''Function to create market order'''
-        timestamp = int(time.time() * 1000)
+        '''Function to create market order
+        quantity = quantity to spend if it is buy in EUR
+        '''
+        timestamp = self.get_server_time()
         recvWindow=10000
-        params = {
-            'symbol':symbol,
-            'side':side,
-            'type':'MARKET',
-            'quantity':self.truncate(quantity,6),
-            'timestamp': timestamp,
-            'recvWindow':recvWindow,
-        }
+        if side == 'buy':
+            params = {
+                'symbol':symbol,
+                'side':side,
+                'type':'MARKET',
+                'quoteOrderQty':self.truncate(quantity,6),
+                'timestamp': timestamp,
+                'recvWindow':recvWindow,
+            }
+        elif side=='sell':
+            params = {
+                'symbol':symbol,
+                'side':side,
+                'type':'MARKET',
+                'quantity':self.truncate(quantity,6),
+                'timestamp': timestamp,
+                'recvWindow':recvWindow,
+            }
         query_string = urlencode(params)
         params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
         headers = {'X-MBX-APIKEY': self.API_KEY}
@@ -192,16 +206,18 @@ class binance():
         response = requests.post(url, headers=headers, params=params).json()
         return response
 
-    def create_stop_loss_order(self,symbol,quantity,stopPrice,side):
+    def create_stop_loss_order(self,symbol,quantity,stopPrice):
         '''Function to create a stop loss'''
-        timestamp = int(time.time() * 1000)
+        timestamp = self.get_server_time()
         recvWindow=10000
         params = {
             'symbol':symbol,
-            'side':side,
-            'type':'STOP_LOSS',
+            'side':'sell',
+            'type':'STOP_LOSS_LIMIT',
+            'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
-            'price':self.truncate(stopPrice,8),
+            'stopPrice':self.truncate(stopPrice,8),
+            'price':self.truncate(stopPrice*0.999,8),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
@@ -212,14 +228,15 @@ class binance():
         response = requests.post(url, headers=headers, params=params).json()
         return response
 
-    def create_take_profit_order(self,symbol,quantity,profitPrice,side):
-        '''Function to create a takeprofit'''
-        timestamp = int(time.time() * 1000)
+    def create_take_profit_order(self,symbol,quantity,profitPrice):
+        '''Function to create a take profit order (limit sell)'''
+        timestamp = self.get_server_time()
         recvWindow=10000
         params = {
             'symbol':symbol,
-            'side':side,
-            'type':'TAKE_PROFIT',
+            'side':'sell',
+            'type':'LIMIT',
+            'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
             'price':self.truncate(profitPrice,8),
             'timestamp': timestamp,
@@ -230,11 +247,16 @@ class binance():
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order')
         response = requests.post(url, headers=headers, params=params).json()
-        return response
+        try :
+            response['msg']
+            return response
+        except:
+            return response
+
 
     def query_order(self,symbol,orderid):
         '''Function to query order data'''
-        timestamp = int(time.time() * 1000)
+        timestamp = self.get_server_time()
         recvWindow=10000
         params = {
             'symbol':symbol,
@@ -251,7 +273,7 @@ class binance():
         
     def test_order(self):
         '''Function to create market order'''
-        timestamp = int(time.time() * 1000)
+        timestamp = self.get_server_time()
         recvWindow=10000
         params = {
             'symbol':'BTCEUR',
@@ -271,6 +293,41 @@ class binance():
             return False
         except:
             return True
+
+    def cancel_all_orders(self,symbol):
+        '''Function to query order data'''
+        timestamp = self.get_server_time()
+        recvWindow=10000
+        params = {
+            'symbol':symbol,
+            'timestamp': timestamp,
+            'recvWindow':recvWindow,
+        }
+        query_string = urlencode(params)
+        params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+        headers = {'X-MBX-APIKEY': self.API_KEY}
+        url = urljoin('https://api.binance.com','/api/v3/openOrders')
+        response = requests.delete(url, headers=headers, params=params).json()
+        try:
+            response['msg']
+            return response
+        except:
+            return response
+        
+
+    def get_exchange_info(self):
+        '''Function to get open orders'''
+        url = urljoin('https://api.binance.com','/api/v3/exchangeInfo')
+        response = requests.get(url).json()
+        try:
+            response['code']
+            return ('Unable to get info')
+        except:
+            if response==[]:
+                return {}
+        finally:
+            return response
+        
    
 class kraken():
     
@@ -488,3 +545,4 @@ class kraken():
 
 if __name__=='__main__':
     pass
+        
