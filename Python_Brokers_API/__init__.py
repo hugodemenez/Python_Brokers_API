@@ -216,8 +216,8 @@ class binance():
             'type':'STOP_LOSS_LIMIT',
             'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
-            'stopPrice':self.truncate(stopPrice,8),
-            'price':self.truncate(stopPrice*0.999,8),
+            'stopPrice':self.truncate(stopPrice,self.get_price_precision(symbol)),
+            'price':self.truncate(stopPrice*0.999,self.get_price_precision(symbol)),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
@@ -314,6 +314,12 @@ class binance():
         except:
             return response
         
+    def get_price_precision(self,symbol):
+        info = self.get_exchange_info()
+        for pair in info['symbols']:
+            if pair['symbol']==symbol:
+                precision = (len(str(pair['filters'][0]['minPrice']).rstrip('0').rstrip('.').replace('.','')))
+                return precision
 
     def get_exchange_info(self):
         '''Function to get open orders'''
@@ -328,7 +334,13 @@ class binance():
         finally:
             return response
         
-   
+    def get_filters(self,symbol):
+        info = self.get_exchange_info()
+        for pair in info['symbols']:
+            if pair['symbol']==symbol:
+                return pair['filters']
+
+
 class kraken():
     
     '''API development for trading automation in kraken markets with krakenex'''
