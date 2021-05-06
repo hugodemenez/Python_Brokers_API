@@ -315,11 +315,17 @@ class binance():
             return response
         
     def get_price_precision(self,symbol):
-        info = self.get_exchange_info()
-        for pair in info['symbols']:
-            if pair['symbol']==symbol:
-                precision = (len(str(pair['filters'][0]['minPrice']).rstrip('0').rstrip('.').replace('.','')))
-                return precision-1
+        while(True):
+            try:
+                info = self.get_exchange_info()
+                for pair in info['symbols']:
+                    if pair['symbol']==symbol:
+                        precision = (len(str(pair['filters'][0]['minPrice']).rstrip('0').rstrip('.').replace('.','')))
+                        return precision-1
+                return {'error':'No matching symbol'}
+            except:
+                pass
+
 
     def get_exchange_info(self):
         '''Function to get open orders'''
@@ -335,10 +341,17 @@ class binance():
             return response
         
     def get_filters(self,symbol):
-        info = self.get_exchange_info()
-        for pair in info['symbols']:
-            if pair['symbol']==symbol:
-                return pair['filters']
+        while(True):
+            try :
+                info = self.get_exchange_info()
+                filters={}
+                for pair in info['symbols']:
+                    if pair['symbol']==symbol:
+                        for filter in pair['filters']:
+                            filters[filter['filterType']]=filter
+                        return filters
+            except:
+                pass
 
 
 class kraken():
