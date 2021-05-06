@@ -164,7 +164,7 @@ class binance():
             'type':'LIMIT',
             'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
-            'price':self.truncate(price,8),
+            'price':self.truncate(price,self.get_price_precision(symbol)),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
@@ -238,7 +238,7 @@ class binance():
             'type':'LIMIT',
             'timeInForce':'GTC',
             'quantity':self.truncate(quantity,6),
-            'price':self.truncate(profitPrice,8),
+            'price':self.truncate(profitPrice,self.get_price_precision(symbol)),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
         }
