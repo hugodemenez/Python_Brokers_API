@@ -319,7 +319,7 @@ class binance():
         for pair in info['symbols']:
             if pair['symbol']==symbol:
                 precision = (len(str(pair['filters'][0]['minPrice']).rstrip('0').rstrip('.').replace('.','')))
-                return precision
+                return precision-1
 
     def get_exchange_info(self):
         '''Function to get open orders'''
