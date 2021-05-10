@@ -163,7 +163,7 @@ class binance():
             'side':side,
             'type':'LIMIT',
             'timeInForce':'GTC',
-            'quantity':self.truncate(quantity,6),
+            'quantity':self.truncate(quantity,self.get_quantity_precision(symbol)),
             'price':self.truncate(price,self.get_price_precision(symbol)),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
@@ -186,7 +186,7 @@ class binance():
                 'symbol':symbol,
                 'side':side,
                 'type':'MARKET',
-                'quoteOrderQty':self.truncate(quantity,6),
+                'quoteOrderQty':self.truncate(quantity,self.get_quantity_precision(symbol)),
                 'timestamp': timestamp,
                 'recvWindow':recvWindow,
             }
@@ -195,7 +195,7 @@ class binance():
                 'symbol':symbol,
                 'side':side,
                 'type':'MARKET',
-                'quantity':self.truncate(quantity,6),
+                'quantity':self.truncate(quantity,self.get_quantity_precision(symbol)),
                 'timestamp': timestamp,
                 'recvWindow':recvWindow,
             }
@@ -215,7 +215,7 @@ class binance():
             'side':'sell',
             'type':'STOP_LOSS_LIMIT',
             'timeInForce':'GTC',
-            'quantity':self.truncate(quantity,6),
+            'quantity':self.truncate(quantity,self.get_quantity_precision(symbol)),
             'stopPrice':self.truncate(stopPrice,self.get_price_precision(symbol)),
             'price':self.truncate(stopPrice*0.999,self.get_price_precision(symbol)),
             'timestamp': timestamp,
@@ -237,7 +237,7 @@ class binance():
             'side':'sell',
             'type':'LIMIT',
             'timeInForce':'GTC',
-            'quantity':self.truncate(quantity,6),
+            'quantity':self.truncate(quantity,self.get_quantity_precision(symbol)),
             'price':self.truncate(profitPrice,self.get_price_precision(symbol)),
             'timestamp': timestamp,
             'recvWindow':recvWindow,
@@ -321,6 +321,18 @@ class binance():
                 for pair in info['symbols']:
                     if pair['symbol']==symbol:
                         precision = (len(str(pair['filters'][0]['minPrice']).rstrip('0').rstrip('.').replace('.','')))
+                        return precision-1
+                return {'error':'No matching symbol'}
+            except:
+                pass
+
+    def get_quantity_precision(self,symbol):
+        while(True):
+            try:
+                info = self.get_exchange_info()
+                for pair in info['symbols']:
+                    if pair['symbol']==symbol:
+                        precision = (len(str(pair['filters'][2]['minQty']).rstrip('0').rstrip('.').replace('.','')))
                         return precision-1
                 return {'error':'No matching symbol'}
             except:
