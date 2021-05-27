@@ -506,25 +506,22 @@ class ftx:
         '''Function to get account balances'''
         ts = int(time.time() * 1000)
         params = {
-            'market':symbol,
-            'side':side,
-            'price':'null',
-            'type':'market',
-            'size':str(quantity),
+            "market":symbol,
+            "side":side,
+            "price":34,
+            "type":"market",
+            "size":quantity,
             }
-        request = requests.Request('POST', self.ENDPOINT+'/orders',params)
+        request = requests.Request('POST', self.ENDPOINT+'/orders',json=params)
         prepared = request.prepare()
-        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
-        if prepared.body:
-            signature_payload += prepared.body
-        
+        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'+str(params)
         signature_payload = signature_payload.encode()
         signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
+
         request.headers['FTX-KEY'] = self.API_KEY
         request.headers['FTX-SIGN'] = signature
         request.headers['FTX-TS'] = str(ts) 
-        
-        
+
         response = requests.Session().send(request.prepare()).json()
         if response['success']==True:
             return response["result"]
@@ -540,8 +537,8 @@ class ftx:
             'market':symbol,
             'side':'sell',
             'type':'stop',
-            'size':quantity,
-            'triggerPrice':stopPrice,
+            'size':str(quantity),
+            'triggerPrice':str(stopPrice),
             }
         request = requests.Request('POST', self.ENDPOINT+'/orders',payload)
         prepared = request.prepare()
