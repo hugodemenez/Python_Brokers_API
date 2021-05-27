@@ -142,7 +142,6 @@ class binance:
             return {'error':'unable to get balances'}
 
     def get_open_orders(self):
-        
         '''Function to get open orders'''
         timestamp = self.get_server_time()
         params = {
