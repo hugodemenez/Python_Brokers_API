@@ -4,7 +4,7 @@ Python functions for crypto-brokers API
 
 __author__ = 'Hugo Demenez <hdemenez@hotmail.fr>'
 
-import time,json,hmac,hashlib,requests,krakenex,math
+import time,hmac,hashlib,requests,math,re
 from urllib.parse import urljoin, urlencode
 
 
@@ -19,7 +19,7 @@ class binance:
         return math.trunc(stepper * number) / stepper
 
     def symbol_format(self,symbol):
-        return symbol.replace('/','')
+        return re.sub("[^0-9a-zA-Z]+", "", symbol)
 
     def create_key_file(self): 
         """Function to create your .key file"""
@@ -389,6 +389,9 @@ class ftx:
         self.API_KEY=''
         self.ENDPOINT='https://ftx.com/api'
 
+    def symbol_format(self,symbol):
+        return re.sub("[^0-9a-zA-Z]+", "/", symbol)
+
     def connect_key(self,path):
         '''Function to connect the api to the account'''
         try:
@@ -421,6 +424,7 @@ class ftx:
 
 
     def get_price_precision(self,symbol):
+        symbol = self.symbol_format(symbol)
         
         try:
             info = self.get_exchange_info()['result']
@@ -432,6 +436,7 @@ class ftx:
             return e
 
     def get_quantity_precision(self,symbol):
+        symbol = self.symbol_format(symbol)
         try:
             info = self.get_exchange_info()['result']
             for pair in info:
@@ -442,6 +447,7 @@ class ftx:
             return e
 
     def price(self,symbol):
+        symbol = self.symbol_format(symbol)
         try:
             info = self.get_exchange_info()['result']
             for pair in info:
@@ -486,6 +492,7 @@ class ftx:
         return requests.Session().send(request.prepare()).json()
 
     def create_market_order(self,symbol,side,quantity):
+        symbol = self.symbol_format(symbol)
         '''Function to get account balances'''
         ts = int(time.time() * 1000)
         request = requests.Request('GET', self.ENDPOINT+'/account')
@@ -511,6 +518,7 @@ class ftx:
 
 
     def create_stop_loss_order(self,symbol,quantity,stopPrice):
+        symbol = self.symbol_format(symbol)
         '''Function to create_stop_loss_order'''
         ts = int(time.time() * 1000)
         request = requests.Request('GET', self.ENDPOINT+'/account')
