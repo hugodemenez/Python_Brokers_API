@@ -18,6 +18,9 @@ class binance:
         stepper = 10.0 ** digits
         return math.trunc(stepper * number) / stepper
 
+    def symbol_format(self,symbol):
+        return symbol.replace('/','')
+
     def create_key_file(self): 
         """Function to create your .key file"""
         API_KEY = str(input("Enter your API key :"))
@@ -37,6 +40,7 @@ class binance:
             return('unable to get server time')
      
     def get_24h_stats(self,symbol):
+        symbol = self.symbol_format(symbol)
         '''Function to get statistics for the last 24h'''
         response = requests.get('https://api.binance.com/api/v3/ticker/24hr',params={'symbol':symbol}).json()
         try:
@@ -55,6 +59,7 @@ class binance:
             return stats
        
     def get_klines_data(self,symbol,interval):
+        symbol = self.symbol_format(symbol)
         """Function to get information from candles of 1minute interval
         <time>, <open>, <high>, <low>, <close>, <volume>
         since (1hour for minutes or 1week for days)
@@ -100,6 +105,7 @@ class binance:
             return ("Unable to read .key file")
         
     def price(self,symbol):
+        symbol = self.symbol_format(symbol)
         '''Function to get symbol prices'''
         response = requests.get('https://api.binance.com/api/v3/ticker/bookTicker',params={'symbol':symbol}).json()
         try:
@@ -136,6 +142,7 @@ class binance:
             return {'error':'unable to get balances'}
 
     def get_open_orders(self):
+        
         '''Function to get open orders'''
         timestamp = self.get_server_time()
         params = {
@@ -156,6 +163,7 @@ class binance:
             return response
 
     def create_limit_order(self,symbol,side,price,quantity):
+        symbol = self.symbol_format(symbol)
         '''Function to create a limit order'''
         timestamp = self.get_server_time()
         recvWindow=10000
@@ -177,6 +185,7 @@ class binance:
         return response
 
     def create_market_order(self,symbol,side,quantity):
+        symbol = self.symbol_format(symbol)
         '''Function to create market order
         quantity = quantity to spend if it is buy in EUR
         '''
@@ -208,6 +217,7 @@ class binance:
         return response
 
     def create_stop_loss_order(self,symbol,quantity,stopPrice):
+        symbol = self.symbol_format(symbol)
         '''Function to create a stop loss'''
         timestamp = self.get_server_time()
         recvWindow=10000
@@ -230,6 +240,7 @@ class binance:
         return response
 
     def create_take_profit_order(self,symbol,quantity,profitPrice):
+        symbol = self.symbol_format(symbol)
         '''Function to create a take profit order (limit sell)'''
         timestamp = self.get_server_time()
         recvWindow=10000
@@ -256,6 +267,7 @@ class binance:
 
 
     def query_order(self,symbol,orderid):
+        symbol = self.symbol_format(symbol)
         '''Function to query order data'''
         timestamp = self.get_server_time()
         recvWindow=10000
@@ -296,6 +308,7 @@ class binance:
             return True
 
     def cancel_all_orders(self,symbol):
+        symbol = self.symbol_format(symbol)
         '''Function to query order data'''
         timestamp = self.get_server_time()
         recvWindow=10000
@@ -316,6 +329,7 @@ class binance:
             return response
         
     def get_price_precision(self,symbol):
+        symbol = self.symbol_format(symbol)
         while(True):
             try:
                 info = self.get_exchange_info()
@@ -328,6 +342,7 @@ class binance:
                 pass
 
     def get_quantity_precision(self,symbol):
+        symbol = self.symbol_format(symbol)
         while(True):
             try:
                 info = self.get_exchange_info()
@@ -354,6 +369,7 @@ class binance:
             return response
         
     def get_filters(self,symbol):
+        symbol = self.symbol_format(symbol)
         while(True):
             try :
                 info = self.get_exchange_info()
@@ -409,7 +425,7 @@ class ftx:
         try:
             info = self.get_exchange_info()['result']
             for pair in info:
-                if pair['name'].replace("/","")==symbol:
+                if pair==symbol:
                     return pair["priceIncrement"]
             return {'error':'No matching symbol'}
         except Exception as e:
@@ -469,6 +485,54 @@ class ftx:
         request.headers['FTX-TS'] = str(ts) 
         return requests.Session().send(request.prepare()).json()
 
+    def create_market_order(self,symbol,side,quantity):
+        '''Function to get account balances'''
+        ts = int(time.time() * 1000)
+        request = requests.Request('GET', self.ENDPOINT+'/account')
+        prepared = request.prepare()
+        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
+        if prepared.body:
+            signature_payload += prepared.body
+        signature_payload = signature_payload.encode()
+        signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
+
+        request.headers['FTX-KEY'] = self.API_KEY
+        request.headers['FTX-SIGN'] = signature
+        request.headers['FTX-TS'] = str(ts) 
+        payload = {
+            'market':symbol,
+            'side':side,
+            'price':0,
+            'type':'market',
+            'size':quantity,
+            }
+        request.params(payload)
+        return requests.Session().send(request.prepare()).json()
+
+
+    def create_stop_loss_order(self,symbol,quantity,stopPrice):
+        '''Function to create_stop_loss_order'''
+        ts = int(time.time() * 1000)
+        request = requests.Request('GET', self.ENDPOINT+'/account')
+        prepared = request.prepare()
+        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
+        if prepared.body:
+            signature_payload += prepared.body
+        signature_payload = signature_payload.encode()
+        signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
+
+        request.headers['FTX-KEY'] = self.API_KEY
+        request.headers['FTX-SIGN'] = signature
+        request.headers['FTX-TS'] = str(ts) 
+        payload = {
+            'market':symbol,
+            'side':'sell',
+            'type':'stop',
+            'size':quantity,
+            'triggerPrice':stopPrice,
+            }
+        request.params(payload)
+        return requests.Session().send(request.prepare()).json()
 class kraken:
     
     '''API development for trading automation in kraken markets with krakenex'''
