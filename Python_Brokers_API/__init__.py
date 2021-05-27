@@ -387,7 +387,7 @@ class ftx:
         """Function to create your .key file"""
         API_KEY = str(input("Enter your API key :"))
         SECRET_KEY = str(input("Enter your SECRET_KEY :"))
-        file = open("binance.key","w")
+        file = open("ftx.key","w")
         file.write(API_KEY+'\n')
         file.write(SECRET_KEY)
         file.close()
@@ -424,6 +424,50 @@ class ftx:
             return {'error':'No matching symbol'}
         except Exception as e:
             return e
+
+    def price(self,symbol):
+        try:
+            info = self.get_exchange_info()['result']
+            for pair in info:
+                if pair['name'].replace("/","")==symbol:
+                    return {'bid':pair["bid"],'ask':pair["ask"]}
+            return {'error':'No matching symbol'}
+        except Exception as e:
+            return e
+
+
+    def get_balances(self):
+        '''Function to get account balances'''
+        ts = int(time.time() * 1000)
+        request = requests.Request('GET', self.ENDPOINT+'/wallet/balances')
+        prepared = request.prepare()
+        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
+        if prepared.body:
+            signature_payload += prepared.body
+        signature_payload = signature_payload.encode()
+        signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
+
+        request.headers['FTX-KEY'] = self.API_KEY
+        request.headers['FTX-SIGN'] = signature
+        request.headers['FTX-TS'] = str(ts) 
+        return requests.Session().send(request.prepare()).json()
+
+        
+    def get_account_info(self):
+        '''Function to get account balances'''
+        ts = int(time.time() * 1000)
+        request = requests.Request('GET', self.ENDPOINT+'/account')
+        prepared = request.prepare()
+        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
+        if prepared.body:
+            signature_payload += prepared.body
+        signature_payload = signature_payload.encode()
+        signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
+
+        request.headers['FTX-KEY'] = self.API_KEY
+        request.headers['FTX-SIGN'] = signature
+        request.headers['FTX-TS'] = str(ts) 
+        return requests.Session().send(request.prepare()).json()
 
 class kraken:
     
@@ -640,5 +684,10 @@ class kraken:
 
 
 if __name__=='__main__':
-    print(ftx().get_quantity_precision('ETHUSDT'))
+    broker = ftx()
+    print(broker.connect_key('ftx.key'))
+    print(broker.get_balances())
+    symbol = 'BTCUSDT'
+    print(binance().price(symbol))
+    print(ftx().price(symbol))
         
