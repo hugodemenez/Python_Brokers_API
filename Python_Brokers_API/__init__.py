@@ -458,7 +458,7 @@ class ftx:
             return e
 
 
-    def get_balances(self):
+    def get_balances(self,asset):
         '''Function to get account balances'''
         ts = int(time.time() * 1000)
         request = requests.Request('GET', self.ENDPOINT+'/wallet/balances')
@@ -472,7 +472,14 @@ class ftx:
         request.headers['FTX-KEY'] = self.API_KEY
         request.headers['FTX-SIGN'] = signature
         request.headers['FTX-TS'] = str(ts) 
-        return requests.Session().send(request.prepare()).json()
+
+        response = requests.Session().send(request.prepare()).json()
+        if response['success']==True:
+            for balance in response['result']:
+                if asset==balance['coin']:
+                    return balance
+        else:
+            return response['error']
 
         
     def get_account_info(self):
@@ -489,49 +496,47 @@ class ftx:
         request.headers['FTX-KEY'] = self.API_KEY
         request.headers['FTX-SIGN'] = signature
         request.headers['FTX-TS'] = str(ts) 
-        return requests.Session().send(request.prepare()).json()
+        response = requests.Session().send(request.prepare()).json()
+        if response['success']==True:
+            return response["result"]
+        else:
+            return response['error']
 
     def create_market_order(self,symbol,side,quantity):
         symbol = self.symbol_format(symbol)
         '''Function to get account balances'''
         ts = int(time.time() * 1000)
-        request = requests.Request('GET', self.ENDPOINT+'/account')
+        params = {
+            'market':symbol,
+            'side':side,
+            'price':'null',
+            'type':'market',
+            'size':str(quantity),
+            }
+        request = requests.Request('POST', self.ENDPOINT+'/orders',params)
         prepared = request.prepare()
         signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
         if prepared.body:
             signature_payload += prepared.body
+        
         signature_payload = signature_payload.encode()
         signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
-
         request.headers['FTX-KEY'] = self.API_KEY
         request.headers['FTX-SIGN'] = signature
         request.headers['FTX-TS'] = str(ts) 
-        payload = {
-            'market':symbol,
-            'side':side,
-            'price':0,
-            'type':'market',
-            'size':quantity,
-            }
-        request.params(payload)
-        return requests.Session().send(request.prepare()).json()
+        
+        
+        response = requests.Session().send(request.prepare()).json()
+        if response['success']==True:
+            return response["result"]
+        else:
+            return response['error']
 
 
     def create_stop_loss_order(self,symbol,quantity,stopPrice):
         symbol = self.symbol_format(symbol)
         '''Function to create_stop_loss_order'''
         ts = int(time.time() * 1000)
-        request = requests.Request('GET', self.ENDPOINT+'/account')
-        prepared = request.prepare()
-        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
-        if prepared.body:
-            signature_payload += prepared.body
-        signature_payload = signature_payload.encode()
-        signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
-
-        request.headers['FTX-KEY'] = self.API_KEY
-        request.headers['FTX-SIGN'] = signature
-        request.headers['FTX-TS'] = str(ts) 
         payload = {
             'market':symbol,
             'side':'sell',
@@ -539,17 +544,58 @@ class ftx:
             'size':quantity,
             'triggerPrice':stopPrice,
             }
-        request.params(payload)
-        return requests.Session().send(request.prepare()).json()
+        request = requests.Request('POST', self.ENDPOINT+'/orders',payload)
+        prepared = request.prepare()
+        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'
+        if prepared.body:
+            signature_payload += prepared.body
+        signature_payload = signature_payload.encode()
+        signature = hmac.new(self.API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
+
+        request.headers['FTX-KEY'] = self.API_KEY
+        request.headers['FTX-SIGN'] = signature
+        request.headers['FTX-TS'] = str(ts) 
+
+        response = requests.Session().send(request.prepare()).json()
+        if response['success']==True:
+            return response["result"]
+        else:
+            return response['error']
     
+    def get_klines_data(self,symbol,interval):
+        symbol = self.symbol_format(symbol)
+        """Function to get information from candles of 1minute interval
+        <time>, <open>, <high>, <low>, <close>, <volume>
+        since (1hour for minutes or 1week for days)
+        max timeframe is 12hours for minute interval 
+        max timeframe is 30 days for hour interval
+        max timeframe is 100 weeks for day interval
+        """
+        if interval=='day':
+            interval=86400
+        elif interval=='hour':
+            interval=3600
+        elif interval=='minute':
+            interval=60
+        else:
+            return ('wrong interval')
+
+        limit = 500
+
+        url = self.ENDPOINT+f'/markets/{symbol}/candles?resolution={interval}&limit={limit}'
+        response = requests.get(url).json()
+        if response['success']==True:
+            return response["result"]
+        else:
+            return response['error']
 
 
 
 if __name__=='__main__':
     broker = ftx()
-    print(broker.connect_key('ftx.key'))
-    print(broker.get_balances())
     symbol = 'BTC/USDT'
-    print(binance().price(symbol))
-    print(ftx().price(symbol))
+    broker.connect_key('ftx.key')
+    print(broker.get_account_info())
+    print(broker.create_market_order('SOLUSDT','sell',1.24652))
+    
         
