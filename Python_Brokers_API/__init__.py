@@ -435,7 +435,7 @@ class ftx:
         try:
             info = self.get_exchange_info()['result']
             for pair in info:
-                if pair['name'].replace("/","")==symbol:
+                if pair['name']==symbol:
                     return pair["sizeIncrement"]
             return {'error':'No matching symbol'}
         except Exception as e:
@@ -445,7 +445,7 @@ class ftx:
         try:
             info = self.get_exchange_info()['result']
             for pair in info:
-                if pair['name'].replace("/","")==symbol:
+                if pair['name']==symbol:
                     return {'bid':pair["bid"],'ask':pair["ask"]}
             return {'error':'No matching symbol'}
         except Exception as e:
@@ -751,7 +751,7 @@ if __name__=='__main__':
     broker = ftx()
     print(broker.connect_key('ftx.key'))
     print(broker.get_balances())
-    symbol = 'BTCUSDT'
+    symbol = 'BTC/USDT'
     print(binance().price(symbol))
     print(ftx().price(symbol))
         
