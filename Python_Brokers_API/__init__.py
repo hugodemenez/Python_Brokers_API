@@ -8,7 +8,7 @@ import time,json,hmac,hashlib,requests,krakenex,math
 from urllib.parse import urljoin, urlencode
 
 
-class binance():
+class binance:
     '''API development for trade automation in binance markets'''
     def __init__(self):
         self.API_SECRET=''
@@ -26,6 +26,7 @@ class binance():
         file.write(API_KEY+'\n')
         file.write(SECRET_KEY)
         file.close()
+        return True
 
     def get_server_time(self):
         '''Function to get server time'''
@@ -366,7 +367,65 @@ class binance():
                 pass
 
 
-class kraken():
+class ftx:
+    def __init__(self):
+        self.API_SECRET=''
+        self.API_KEY=''
+        self.ENDPOINT='https://ftx.com/api'
+
+    def connect_key(self,path):
+        '''Function to connect the api to the account'''
+        try:
+            with open(path, 'r') as f:
+                self.API_KEY = f.readline().strip()
+                self.API_SECRET = f.readline().strip()
+            return ("Successfuly connected your keys")
+        except:
+            return ("Unable to read .key file")
+
+    def create_key_file(self): 
+        """Function to create your .key file"""
+        API_KEY = str(input("Enter your API key :"))
+        SECRET_KEY = str(input("Enter your SECRET_KEY :"))
+        file = open("binance.key","w")
+        file.write(API_KEY+'\n')
+        file.write(SECRET_KEY)
+        file.close()
+        return True
+
+
+
+    def get_exchange_info(self):
+        '''Function to get server time'''
+        response = requests.get(self.ENDPOINT+'/markets',params={}).json()
+        try:
+            return response
+        except:
+            return('unable to get server time')
+
+
+    def get_price_precision(self,symbol):
+        
+        try:
+            info = self.get_exchange_info()['result']
+            for pair in info:
+                if pair['name'].replace("/","")==symbol:
+                    return pair["priceIncrement"]
+            return {'error':'No matching symbol'}
+        except Exception as e:
+            return e
+
+    def get_quantity_precision(self,symbol):
+        try:
+            info = self.get_exchange_info()['result']
+            for pair in info:
+                if pair['name'].replace("/","")==symbol:
+                    return pair["sizeIncrement"]
+            return {'error':'No matching symbol'}
+        except Exception as e:
+            return e
+
+class kraken:
     
     '''API development for trading automation in kraken markets with krakenex'''
     def __init__(self):
@@ -581,5 +640,5 @@ class kraken():
 
 
 if __name__=='__main__':
-    pass
+    print(ftx().get_quantity_precision('ETHUSDT'))
         
