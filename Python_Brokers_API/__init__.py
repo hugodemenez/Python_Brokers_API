@@ -161,6 +161,26 @@ class binance:
         finally:
             return response
 
+    def get_conditional_orders(self):
+        '''Function to get open orders'''
+        timestamp = self.get_server_time()
+        params = {
+            'timestamp': timestamp,
+        }
+        query_string = urlencode(params)
+        params['signature'] = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+        headers = {'X-MBX-APIKEY': self.API_KEY}
+        url = urljoin('https://api.binance.com','/api/v3/openOrders')
+        response = requests.get(url, headers=headers, params=params).json()
+        try:
+            code = response['code']
+            return ('Unable to get orders')
+        except:
+            if response==[]:
+                return {}
+        finally:
+            return response
+
     def create_limit_order(self,symbol,side,price,quantity):
         symbol = self.symbol_format(symbol)
         '''Function to create a limit order'''
@@ -482,6 +502,11 @@ class ftx:
         return self._get('orders', {'market': market})
 
     @authentication_required
+    def get_conditional_orders(self,
+                               market: Optional[str] = None) -> List[dict]:
+        return self._get('conditional_orders', {'market': self.symbol_format(market)})
+
+    @authentication_required
     def get_order_status(self, existing_order_id: int) -> dict:
         return self._get(f'orders/{existing_order_id}')
 
@@ -548,10 +573,7 @@ class ftx:
                 } if client_order_id is not None else {}),
             })
 
-    @authentication_required
-    def get_conditional_orders(self,
-                               market: Optional[str] = None) -> List[dict]:
-        return self._get('conditional_orders', {'market': self.symbol_format(market)})
+
 
     @authentication_required
     def place_order(self,
@@ -809,7 +831,7 @@ class ftx:
 
 
     def get_exchange_info(self):
-        '''Function to get server time'''
+        '''Function to get exchange information'''
         response = requests.get(self._base_url+'/markets',params={}).json()
         try:
             return response
@@ -819,11 +841,10 @@ class ftx:
 
     def get_price_precision(self,symbol):
         symbol = self.symbol_format(symbol)
-        
         try:
             info = self.get_exchange_info()['result']
             for pair in info:
-                if pair==symbol:
+                if pair['name']==symbol:
                     return pair["priceIncrement"]
             return {'error':'No matching symbol'}
         except Exception as e:
@@ -927,6 +948,6 @@ if __name__=='__main__':
     broker = ftx()
     symbol = 'BTC*USDT'
     broker.connect_key('ftx.key')
-    print(broker.get_open_orders("BTC/USDT"))
+    print(broker.get_conditional_orders(symbol))
     
         
