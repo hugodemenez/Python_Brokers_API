@@ -900,7 +900,6 @@ class ftx:
         symbol = self.symbol_format(symbol)
         return self.cancel_orders(symbol,True)
 
-
     def test_order(self):
         try:
             self.get_account_info()
