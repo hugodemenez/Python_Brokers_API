@@ -213,6 +213,10 @@ class binance:
         headers = {'X-MBX-APIKEY': self.API_KEY}
         url = urljoin('https://api.binance.com','/api/v3/order')
         response = requests.post(url, headers=headers, params=params).json()
+        try:
+            response['order']['price']=response['order']['fills'][0]['price']
+        except:
+            pass
         return response
 
     def create_stop_loss_order(self,symbol,quantity,stopPrice):
@@ -922,9 +926,9 @@ class ftx:
 
 
 if __name__=='__main__':
-    broker = ftx()
+    broker = binance()
     symbol = 'BTC*USDT'
-    broker.connect_key('ftx.key')
+    broker.connect_key('binance.key')
     print(broker.get_open_orders()[0])
     
         
