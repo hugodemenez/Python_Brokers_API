@@ -475,7 +475,9 @@ class ftx:
 
     @authentication_required
     def get_open_orders(self, market: Optional[str] = None) -> List[dict]:
-        return self._get('orders', {'market': self.symbol_format(market)})
+        if market:
+            market=self.symbol_format(market)
+        return self._get('orders', {'market': market})
 
     @authentication_required
     def get_order_status(self, existing_order_id: int) -> dict:
@@ -861,12 +863,18 @@ class ftx:
 
     def create_market_order(self,symbol,side,quantity):
         symbol = self.symbol_format(symbol)
-        return self.place_order(symbol,side,0,quantity,"market")
+        try:
+            return self.place_order(symbol,side,0,quantity,"market")
+        except:
+            return {'msg':Exception}
 
 
     def create_stop_loss_order(self,symbol,quantity,stopPrice):
         symbol = self.symbol_format(symbol)
-        return self.place_conditional_order(symbol,"sell",quantity,"stop",trigger_price=stopPrice)
+        try :
+            return self.place_conditional_order(symbol,"sell",quantity,"stop",trigger_price=stopPrice)
+        except:
+            return {'msg':Exception}
 
     
     def get_klines_data(self,symbol,interval):
@@ -898,7 +906,10 @@ class ftx:
 
     def cancel_all_orders(self,symbol):
         symbol = self.symbol_format(symbol)
-        return self.cancel_orders(symbol,True)
+        try:
+            return self.cancel_orders(symbol,True)
+        except:
+            return {"msg":Exception}
 
     def test_order(self):
         try:
@@ -906,12 +917,14 @@ class ftx:
             return True
         except:
             return False
+    
+
 
 
 if __name__=='__main__':
     broker = ftx()
     symbol = 'BTC*USDT'
     broker.connect_key('ftx.key')
-    print(broker.test_order())
+    print(broker.get_open_orders()[0])
     
         
