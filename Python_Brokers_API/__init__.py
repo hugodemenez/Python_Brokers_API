@@ -504,7 +504,9 @@ class ftx:
     @authentication_required
     def get_conditional_orders(self,
                                market: Optional[str] = None) -> List[dict]:
-        return self._get('conditional_orders', {'market': self.symbol_format(market)})
+        if market:
+            market = self.symbol_format(market)
+        return self._get('conditional_orders', {'market': market})
 
     @authentication_required
     def get_order_status(self, existing_order_id: int) -> dict:
@@ -950,6 +952,6 @@ if __name__=='__main__':
     broker = ftx()
     symbol = 'BTC*USDT'
     broker.connect_key('ftx.key')
-    print(broker.limit_open("BTC/USDT"))
+    print(broker.get_conditional_orders())
     
         
