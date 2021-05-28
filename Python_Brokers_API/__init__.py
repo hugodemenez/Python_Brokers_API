@@ -405,15 +405,8 @@ class ftx:
         self._api_secret = api_secret
         self._subaccount_name = subaccount_name
 
-    def connect_key(self,path):
-        '''Function to connect the api to the account'''
-        try:
-            with open(path, 'r') as f:
-                self._api_key = f.readline().strip()
-                self._api_secret = f.readline().strip()
-            return ("Successfuly connected your keys")
-        except:
-            return ("Unable to read .key file")
+    def symbol_format(self,symbol):
+        return re.sub("[^0-9a-zA-Z]+", "/", symbol)
 
 
     def _get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Any:
@@ -482,7 +475,7 @@ class ftx:
 
     @authentication_required
     def get_open_orders(self, market: Optional[str] = None) -> List[dict]:
-        return self._get('orders', {'market': market})
+        return self._get('orders', {'market': self.symbol_format(market)})
 
     @authentication_required
     def get_order_status(self, existing_order_id: int) -> dict:
@@ -497,7 +490,7 @@ class ftx:
                           end_time: Optional[float] = None) -> List[dict]:
         return self._get(
             'orders/history', {
-                'market': market,
+                'market': self.symbol_format(market),
                 'side': side,
                 'orderType': order_type,
                 'start_time': start_time,
@@ -515,7 +508,7 @@ class ftx:
             end_time: Optional[float] = None) -> List[dict]:
         return self._get(
             'conditional_orders/history', {
-                'market': market,
+                'market': self.symbol_format(market),
                 'side': side,
                 'type': type,
                 'orderType': order_type,
@@ -554,7 +547,7 @@ class ftx:
     @authentication_required
     def get_conditional_orders(self,
                                market: Optional[str] = None) -> List[dict]:
-        return self._get('conditional_orders', {'market': market})
+        return self._get('conditional_orders', {'market': self.symbol_format(market)})
 
     @authentication_required
     def place_order(self,
@@ -569,7 +562,7 @@ class ftx:
                     client_id: Optional[str] = None) -> dict:
         return self._post(
             'orders', {
-                'market': market,
+                'market': self.symbol_format(market),
                 'side': side,
                 'price': price,
                 'size': size,
@@ -605,7 +598,7 @@ class ftx:
 
         return self._post(
             'conditional_orders', {
-                'market': market,
+                'market': self.symbol_format(market),
                 'side': side,
                 'triggerPrice': trigger_price,
                 'size': size,
@@ -626,7 +619,7 @@ class ftx:
                       limit_orders: bool = False) -> dict:
         return self._delete(
             'orders', {
-                'market': market_name,
+                'market': self.symbol_format(market_name),
                 'conditionalOrdersOnly': conditional_orders,
                 'limitOrdersOnly': limit_orders,
             })
@@ -635,9 +628,7 @@ class ftx:
     def get_fills(self) -> List[dict]:
         return self._get('fills')
 
-    @authentication_required
-    def get_balances(self) -> List[dict]:
-        return self._get('wallet/balances')
+
 
     @authentication_required
     def get_deposit_address(self,
@@ -751,7 +742,7 @@ class ftx:
         limit = 100
         results = []
         while True:
-            response = self._get(f'markets/{market}/trades', {
+            response = self._get(f'markets/{self.symbol_format(market)}/trades', {
                 'end_time': end_time,
                 'start_time': start_time,
             })
@@ -791,10 +782,137 @@ class ftx:
 
 
 
+    def connect_key(self,path):
+        '''Function to connect the api to the account'''
+        try:
+            with open(path, 'r') as f:
+                self._api_key = f.readline().strip()
+                self._api_secret = f.readline().strip()
+            return ("Successfuly connected your keys")
+        except:
+            return ("Unable to read .key file")
+
+    def create_key_file(self): 
+        """Function to create your .key file"""
+        _api_key = str(input("Enter your API key :"))
+        _api_secret = str(input("Enter your SECRET_KEY :"))
+        file = open("ftx.key","w")
+        file.write(_api_key+'\n')
+        file.write(_api_secret)
+        file.close()
+        return True
+
+
+
+    def get_exchange_info(self):
+        '''Function to get server time'''
+        response = requests.get(self._base_url+'/markets',params={}).json()
+        try:
+            return response
+        except:
+            return('unable to get server time')
+
+
+    def get_price_precision(self,symbol):
+        symbol = self.symbol_format(symbol)
+        
+        try:
+            info = self.get_exchange_info()['result']
+            for pair in info:
+                if pair==symbol:
+                    return pair["priceIncrement"]
+            return {'error':'No matching symbol'}
+        except Exception as e:
+            return e
+
+    def get_quantity_precision(self,symbol):
+        symbol = self.symbol_format(symbol)
+        try:
+            info = self.get_exchange_info()['result']
+            for pair in info:
+                if pair['name']==symbol:
+                    return pair["sizeIncrement"]
+            return {'error':'No matching symbol'}
+        except Exception as e:
+            return e
+
+    def price(self,symbol):
+        symbol = self.symbol_format(symbol)
+        try:
+            info = self.get_exchange_info()['result']
+            for pair in info:
+                if pair['name']==symbol:
+                    return {'bid':pair["bid"],'ask':pair["ask"]}
+            return {'error':'No matching symbol'}
+        except Exception as e:
+            return e
+
+
+    def get_balances(self,asset) -> dict:
+        '''Function to get account balances'''
+        response = self._get('wallet/balances')
+        try:
+            for balance in response:
+                if asset==balance['coin']:
+                    return balance
+        except:
+            return 
+
+
+    def create_market_order(self,symbol,side,quantity):
+        symbol = self.symbol_format(symbol)
+        return self.place_order(symbol,side,0,quantity,"market")
+
+
+    def create_stop_loss_order(self,symbol,quantity,stopPrice):
+        symbol = self.symbol_format(symbol)
+        return self.place_conditional_order(symbol,"sell",quantity,"stop",trigger_price=stopPrice)
+
+    
+    def get_klines_data(self,symbol,interval):
+        symbol = self.symbol_format(symbol)
+        """Function to get information from candles of 1minute interval
+        <time>, <open>, <high>, <low>, <close>, <volume>
+        since (1hour for minutes or 1week for days)
+        max timeframe is 12hours for minute interval 
+        max timeframe is 30 days for hour interval
+        max timeframe is 100 weeks for day interval
+        """
+        if interval=='day':
+            interval=86400
+        elif interval=='hour':
+            interval=3600
+        elif interval=='minute':
+            interval=60
+        else:
+            return ('wrong interval')
+
+        limit = 720
+
+        url = self._base_url+f'/markets/{symbol}/candles?resolution={interval}&limit={limit}'
+        response = requests.get(url).json()
+        if response['success']==True:
+            return response["result"]
+        else:
+            return response['error']
+
+    def cancel_all_orders(self,symbol):
+        symbol = self.symbol_format(symbol)
+        return self.cancel_orders(symbol,True)
+
+
+    def test_order(self):
+        try:
+            self.get_account_info()
+            return True
+        except:
+            return False
+
+
 if __name__=='__main__':
     broker = ftx()
-    symbol = 'BTC/USDT'
+    symbol = 'BTC*USDT'
     broker.connect_key('ftx.key')
-    print(broker.get_account_info())
+    print(broker.test_order())
     
         
