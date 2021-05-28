@@ -887,7 +887,9 @@ class ftx:
     def create_market_order(self,symbol,side,quantity):
         symbol = self.symbol_format(symbol)
         try:
-            return self.place_order(symbol,side,0,quantity,"market")
+            order = self.place_order(symbol,side,0,quantity,"market")
+            order['price']=self.get_order_status(order["id"])["avgFillPrice"]
+            return order
         except:
             return {'msg':Exception}
 
@@ -948,6 +950,6 @@ if __name__=='__main__':
     broker = ftx()
     symbol = 'BTC*USDT'
     broker.connect_key('ftx.key')
-    print(broker.get_conditional_orders(symbol))
+    print(broker.limit_open("BTC/USDT"))
     
         
