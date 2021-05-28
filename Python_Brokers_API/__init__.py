@@ -214,7 +214,7 @@ class binance:
         url = urljoin('https://api.binance.com','/api/v3/order')
         response = requests.post(url, headers=headers, params=params).json()
         try:
-            response['order']['price']=response['order']['fills'][0]['price']
+            response['price']=response['fills'][0]['price']
         except:
             pass
         return response
