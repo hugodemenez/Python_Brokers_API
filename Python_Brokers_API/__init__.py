@@ -479,8 +479,6 @@ class ftx:
 
     @authentication_required
     def get_open_orders(self, market: Optional[str] = None) -> List[dict]:
-        if market:
-            market=self.symbol_format(market)
         return self._get('orders', {'market': market})
 
     @authentication_required
@@ -926,9 +924,9 @@ class ftx:
 
 
 if __name__=='__main__':
-    broker = binance()
+    broker = ftx()
     symbol = 'BTC*USDT'
-    broker.connect_key('binance.key')
-    print(broker.get_open_orders()[0])
+    broker.connect_key('ftx.key')
+    print(broker.get_open_orders("BTC/USDT"))
     
         
