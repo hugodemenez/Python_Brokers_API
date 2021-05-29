@@ -6,7 +6,10 @@ __author__ = 'Hugo Demenez <hdemenez@hotmail.fr>'
 
 import time,hmac,hashlib,requests,math,re
 from urllib.parse import urljoin, urlencode
-
+import urllib.parse
+from typing import Optional, Dict, Any, List
+from ciso8601 import parse_datetime
+from requests import Request, Session, Response
 
 class binance:
     '''API development for trade automation in binance markets'''
@@ -406,13 +409,7 @@ class binance:
                 pass
 
 
-import hmac
-import time
-import urllib.parse
-from typing import Optional, Dict, Any, List
 
-from ciso8601 import parse_datetime
-from requests import Request, Session, Response
 
 
 class ftx:
