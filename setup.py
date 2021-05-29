@@ -18,7 +18,7 @@ setuptools.setup(
   keywords = ['Python', 'Brokers', 'API'],   
   install_requires=[
           'requests',
-          'krakenex',
+          'ciso8601',
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',     
