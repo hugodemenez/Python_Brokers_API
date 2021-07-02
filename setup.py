@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
   name = 'Python_Brokers_API',         
   packages = ['Python_Brokers_API'],   
-  version = '3.6',      
+  version = '3.7',      
   license='MIT',        
   description = 'A package to make requests to brokers like binance,kraken',   
   long_description=long_description,
@@ -14,7 +14,7 @@ setuptools.setup(
   author = 'Hugo Demenez',                  
   author_email = 'hdemenez@hotmail.fr',     
   url = 'https://github.com/hugodemenez/Python_Brokers_API',   
-  download_url = 'https://github.com/hugodemenez/Python_Brokers_API/archive/refs/tags/v3.6.tar.gz', 
+  download_url = 'https://github.com/hugodemenez/Python_Brokers_API/archive/refs/tags/v3.7.tar.gz', 
   keywords = ['Python', 'Brokers', 'API'],   
   install_requires=[
           'requests',
