@@ -14,7 +14,7 @@ setuptools.setup(
   author = 'Hugo Demenez',                  
   author_email = 'hdemenez@hotmail.fr',     
   url = 'https://github.com/hugodemenez/Python_Brokers_API',   
-  download_url = 'https://github.com/hugodemenez/Python_Brokers_API/archive/refs/tags/v3.7.tar.gz', 
+  download_url = 'https://github.com/hugodemenez/Python_Brokers_API/archive/refs/tags/v3.9.tar.gz', 
   keywords = ['Python', 'Brokers', 'API'],   
   install_requires=[
           'requests',
